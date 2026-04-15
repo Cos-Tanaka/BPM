@@ -1,5 +1,6 @@
 FROM node:18-slim
 
+ENV TZ=Asia/Tokyo
 WORKDIR /app
 
 # Copy package files and install dependencies

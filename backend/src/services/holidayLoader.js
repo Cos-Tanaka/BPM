@@ -45,8 +45,11 @@ class HolidayLoader {
     // 土日判定 (0: 日, 6: 土)
     if (day === 0 || day === 6) return false;
 
-    // 祝日CSV判定
-    const dateStr = date.toISOString().substring(0, 10);
+    // 祝日CSV判定 (ローカルの日付文字列を取得)
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    const dateStr = `${y}-${m}-${d}`;
     if (this.holidays.has(dateStr)) return false;
 
     return true;

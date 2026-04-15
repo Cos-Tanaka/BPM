@@ -101,6 +101,15 @@ git pull origin main
 docker-compose up -d --build
 ```
 
+### ソースコード・設定変更の反映
+JavaScript, CSS, または Dockerfile などのソースコードを直接サーバ上で修正した場合、以下のコマンドでイメージを再ビルドして反映させます。
+
+```bash
+# 変更をビルドして再起動
+docker-compose up -d --build
+```
+※ `--build` オプションを付けない場合、古いイメージが使用され変更が反映されないことがあります。
+
 ---
 
 ## 付録：リバースプロキシ (Nginx) の設定（任意）
