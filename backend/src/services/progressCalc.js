@@ -66,6 +66,8 @@ class ProgressCalc {
       progressRate,
       riskLevel: risk.level,
       riskIcon: risk.icon,
+      marginRate: (risk.marginRate !== undefined && risk.marginRate !== null) ? Math.round(risk.marginRate * 100) : null,
+      delayRate: (risk.delayRate !== undefined && risk.delayRate !== null) ? Math.round(risk.delayRate * 100) : null,
       phases,
       isWaitingForProduction,
       backlogUrl: `https://${config.backlog.spaceId}.backlog.com/view/${parent.issueKey}`
@@ -174,10 +176,10 @@ class ProgressCalc {
     let axis2Warning = (!axis2Danger && L > 0.08);
 
     // 最終判定 (9.5.4)
-    if (axis1Danger || axis2Danger) return { level: 'danger', icon: '🔴' };
-    if (axis1Warning || axis2Warning) return { level: 'warning', icon: '🟡' };
+    if (axis1Danger || axis2Danger) return { level: 'danger', icon: '🔴', marginRate: M, delayRate: L };
+    if (axis1Warning || axis2Warning) return { level: 'warning', icon: '🟡', marginRate: M, delayRate: L };
     
-    return { level: 'success', icon: '🟢' };
+    return { level: 'success', icon: '🟢', marginRate: M, delayRate: L };
   }
 }
 

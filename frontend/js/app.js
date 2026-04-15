@@ -111,7 +111,17 @@ function renderTable(issues) {
                     </div>
                 </td>
                 <td>${window.renderPhaseStatus(issue.phases)}</td>
-                <td><span class="risk-badge risk-${issue.riskLevel}">${issue.riskIcon} ${issue.riskLevel.toUpperCase()}</span></td>
+                <td>
+                    <div class="risk-cell">
+                        <span class="risk-badge risk-${issue.riskLevel}">${issue.riskIcon} ${issue.riskLevel.toUpperCase()}</span>
+                        ${ (issue.marginRate !== null || issue.delayRate !== null) ? `
+                            <div class="risk-details">
+                                ${issue.marginRate !== null ? `<span>余裕: ${issue.marginRate}%</span>` : ''}
+                                ${issue.delayRate !== null ? `<span>遅延: ${issue.delayRate}%</span>` : ''}
+                            </div>
+                        ` : '' }
+                    </div>
+                </td>
             </tr>
         `).join('');
     }
