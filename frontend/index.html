@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPM | Backlog Progress Monitor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <header class="main-header">
+            <div class="logo">
+                <span class="logo-icon">📊</span>
+                <h1>Backlog Progress Monitor</h1>
+            </div>
+            <div class="project-info">
+                <span class="label">Project:</span>
+                <span class="value" id="project-key">V2A9</span>
+            </div>
+        </header>
+
+        <main class="container">
+            <section class="filters card">
+                <div class="filter-group">
+                    <label for="assignee-filter">担当者</label>
+                    <select id="assignee-filter">
+                        <option value="all">すべて</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="risk-filter">リスク</label>
+                    <select id="risk-filter">
+                        <option value="all">すべて</option>
+                        <option value="danger">🔴 危険</option>
+                        <option value="warning">🟡 注意</option>
+                        <option value="success">🟢 正常</option>
+                        <option value="check">⚠️ 要確認</option>
+                    </select>
+                </div>
+                <button id="refresh-btn" class="btn btn-primary">
+                    <span class="icon">🔄</span> 更新
+                </button>
+            </section>
+
+            <section class="overview-stats">
+                <!-- Will be populated by JS -->
+            </section>
+
+            <section class="issue-list card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="col-key">キー</th>
+                            <th class="col-name">案件名</th>
+                            <th class="col-date">テストリリース<br>予定日</th>
+                            <th class="col-assignee">担当者</th>
+                            <th class="col-hours">工数 (予/実/残)</th>
+                            <th class="col-progress">進捗率</th>
+                            <th class="col-phases">工程状況</th>
+                            <th class="col-risk">リスク</th>
+                        </tr>
+                    </thead>
+                    <tbody id="issue-table-body">
+                        <!-- Placeholder row -->
+                        <tr>
+                            <td colspan="8" class="loading">データを読み込み中...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+
+        <footer class="main-footer">
+            <p>&copy; 2026 BPM - Backlog Progress Monitor</p>
+        </footer>
+    </div>
+    <script src="js/api.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
