@@ -1,0 +1,355 @@
+:root {
+    --primary: #00a29a;
+    --primary-dark: #00817b;
+    --bg: #f5f7f9;
+    --card-bg: #ffffff;
+    --text-main: #2c3e50;
+    --text-muted: #7f8c8d;
+    --danger: #e74c3c;
+    --warning: #f1c40f;
+    --success: #2ecc71;
+    --info: #3498db;
+    --border: #e1e8ed;
+    --shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    background-color: var(--bg);
+    color: var(--text-main);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Header */
+.main-header {
+    background: var(--card-bg);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow);
+    border-bottom: 2px solid var(--primary);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.logo h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.logo-icon {
+    font-size: 2rem;
+}
+
+.project-info {
+    font-weight: 600;
+}
+
+.project-info .label {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+}
+
+/* Cards */
+.card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+}
+
+/* Filters */
+.filters {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+select {
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    min-width: 150px;
+}
+
+/* Buttons */
+.btn {
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+/* Table */
+.issue-list {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Table Column Widths */
+.col-key { width: 10%; }
+.col-name { width: 22%; }
+.col-date { width: 14%; }
+.col-assignee { width: 9%; }
+.col-hours { width: 12%; }
+.col-progress { width: 10%; }
+.col-phases { width: 13%; }
+.col-risk { width: 10%; }
+
+th {
+    text-align: left;
+    padding: 1rem;
+    border-bottom: 2px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+td {
+    padding: 1.2rem 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+tr:hover {
+    background-color: rgba(0, 162, 154, 0.02);
+}
+
+.issue-key {
+    font-weight: 700;
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.issue-key:hover {
+    text-decoration: underline;
+}
+
+/* Progress Bar */
+.progress-container {
+    width: 120px;
+    height: 8px;
+    background: #edf2f7;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: var(--primary);
+}
+
+/* Risk Badges */
+.risk-badge {
+    padding: 0.4rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+    display: inline-block;
+    text-align: center;
+}
+
+.risk-danger { background: #fee2e2; color: #dc2626; }
+.risk-warning { background: #ffedd5; color: #d97706; }
+.risk-success { background: #dcfce7; color: #16a34a; }
+.risk-check { background: #f3f4f6; color: #4b5563; }
+
+/* Overview Stats */
+.overview-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    border-left: 4px solid var(--info);
+}
+
+.stat-card.danger { border-left-color: var(--danger); }
+.stat-card.warning { border-left-color: var(--warning); }
+.stat-card.success { border-left-color: var(--success); }
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+/* Phase Grid */
+.phase-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+    min-width: 140px;
+}
+
+.phase-item {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+}
+
+.phase-item.complete {
+    background: #dcfce7;
+    border-color: #b9f6ca;
+    color: #16a34a;
+}
+
+.phase-item.empty {
+    opacity: 0.5;
+}
+
+.phase-label {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* Utilities */
+.loading {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 3rem;
+}
+
+/* Date and Days Badge */
+.date-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.days-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 12px;
+    background-color: var(--info);
+    color: white;
+    width: fit-content;
+}
+
+.days-badge.danger {
+    background-color: var(--danger);
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border-radius: 6px;
+    text-align: center;
+    white-space: nowrap;
+    width: fit-content;
+}
+
+.status-badge.waiting {
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+}
+
+/* Hours Grid */
+.hours-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-family: 'Inter', Courier, monospace;
+    font-size: 0.85rem;
+}
+
+.hour-item {
+    display: flex;
+    align-items: center;
+}
+
+.hour-item .label {
+    width: 24px;
+    color: var(--text-muted);
+}
+
+.hour-item .value {
+    width: 48px;
+    text-align: right;
+    font-weight: 600;
+}
+
+.hour-item .unit {
+    margin-left: 2px;
+    color: var(--text-muted);
+}
+
+.hour-item.remaining .value {
+    color: var(--primary);
+    font-weight: 700;
+}
