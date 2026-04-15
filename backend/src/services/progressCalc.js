@@ -159,8 +159,8 @@ class ProgressCalc {
     const availableHours = availableDays * 8;
     const M = availableHours > 0 ? (availableHours - remainingHours) / availableHours : -1;
     
-    let axis1Danger = (availableHours <= 0 || M < 0.15);
-    let axis1Warning = (!axis1Danger && M < 0.25);
+    let axis1Danger = (availableHours <= 0 || M < 0.10);
+    let axis1Warning = (!axis1Danger && M < 0.20);
 
     // 軸2：進捗遅延率 (9.5.3)
     const totalWorkingDays = holidayLoader.getWorkingDaysCount(startDate, releaseDate);
