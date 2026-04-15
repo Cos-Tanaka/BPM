@@ -1,211 +1,128 @@
 # Backlog進捗管理ツール (BPM) 詳細設計書
 
 **システム名：** Backlog Progress Monitor (BPM)  
-**文書バージョン：** 0.1.0  
-**作成日：** 2026-04-15  
-**最終更新日：** 2026-04-15  
+**作成日：** 2026-04-16  
 
 ---
 
-## 1. ドキュメント情報
+## 1. システムアーキテクチャとファイル構成
 
-| 項目 | 内容 |
-|---|---|
-| 作成者 | Antigravity (AI) |
-| 利用モデル | Gemini 3 Flash |
-| 準拠文書 | [Backlog進捗管理ツール 基本設計書](./BPM_基本設計書.md) |
-
----
-
-## 2. ファイル構成・ディレクトリ構造
-
-### 2.1 ディレクトリ構造
+現在のBPMは、Node.jsバックエンド（Express）とVanilla JS（素のJavaScript）によるフロントエンドの2層アーキテクチャで構成されています。
 
 ```text
 bpm/
-├── doc/
-│   ├── BPM_基本設計書.md
-│   └── BPM_詳細設計書.md
-├── .env.example                # 環境変数テンプレート
-├── docker-compose.yml          # コンテナ構成
-├── Dockerfile                  # サーバ実行環境
+├── .env                        # 環境変数ファイル（APIキーや固有IDを管理）
+├── docker-compose.yml          # デプロイ用コンテナ構成
+├── Dockerfile                  # サーバ実行環境設定
 ├── backend/
+│   ├── package.json
 │   ├── src/
-│   │   ├── app.js              # エントリポイント・ルート定義
-│   │   ├── config.js           # 環境変数・設定管理
-│   │   ├── routes/
-│   │   │   └── progress.js     # 進捗集計エンドポイント
+│   │   ├── app.js              # Expressサーバエントリーポイント・APIルーティング
+│   │   ├── config.js           # .env 値の読み込みと全体設定管理
 │   │   └── services/
-│   │       ├── backlogApi.js   # Backlog API クライアント
-│   │       ├── progressCalc.js # 工数・リスク計算ロジック
-│   │       └── holidayLoader.js # 非営業日CSV読み込み
-│   └── package.json
+│   │       ├── backlogApi.js   # Backlog API 通信とデータ抽出クラス
+│   │       ├── progressCalc.js # 工数集計、リスク計算のコアビジネスロジック
+│   │       └── holidayLoader.js# 祝日CSVの読み込みおよび営業日計算
+├── data/
+│   └── holidays.csv            # 非営業日マスタCSVファイル
 └── frontend/
-    ├── index.html              # メイン画面
+    ├── index.html              # メイン画面HTML
     ├── css/
-    │   └── style.css           # スタイルシート
+    │   └── style.css           # 画面スタイルデザイン
     └── js/
-        ├── app.js              # フロントエンドメイン
-        ├── api.js              # バックエンドAPI呼び出し
-        └── components.js       # UIコンポーネント生成
+        ├── app.js              # 画面制御、リスト生成、フィルタリング処理
+        └── components.js       # UIコンポーネント生成（工程グリッド）
 ```
+
+---
+
+## 2. 環境変数と設定 (`config.js`, `.env`)
+
+システムはハードコードを避け、すべて環境変数経由で挙動を制御しています。
+
+| 変数名 | 用途 | 実際の値（例） |
+|---|---|---|
+| `BACKLOG_API_KEY` | Backlogへの接続認証キー | `TWGAyX...` |
+| `BACKLOG_SPACE_ID` | Backlogスペース名（URLサブドメイン） | `cosmicb-2s` |
+| `PROJECT_KEY` | 情報取得対象のプロジェクトキー | `V2A9` |
+| `HOLIDAY_CSV_PATH` | 非営業日CSVファイルへのパス | `./data/holidays.csv` |
+| `CUSTOM_FIELD_ID_STATUS` | カスタム項目「ステータス」の内部ID | `16753` |
+| `CUSTOM_FIELD_ID_RELEASE_DATE`| カスタム項目「テストリリース予定日」の内部ID | `16750` |
+| `CUSTOM_FIELD_ID_PROGRESS` | カスタム項目「進捗率」の内部ID | `601439` |
+| `ISSUE_TYPE_ID_ANKEN` | 課題種別「00.案件」の内部ID | `224204` |
+| `PORT` | サーバーの起動ポート番号 | `3030` |
 
 ---
 
 ## 3. バックエンド設計
 
-### 3.1 技術詳細
-- **Runtime:** Node.js (v18+)
-- **Framework:** Express
-- **API Client:** axios (or fetch)
-- **External Dependencies:**
-  - `dotenv`: 環境変数読み込み
-  - `csv-parse`: 祝日CSVのパース
+### 3.1 API エンドポイント (`app.js`)
 
-### 3.2 モジュール一覧
+#### `GET /api/progress`
+フロントエンドからのリクエストを受け取り、すべての案件進捗情報をJSONで返却します。
+内部では以下の順番で処理を行っています。
+1. `backlogApi.getParentIssues()` を呼び出し、対象の親案件を取得。
+2. `Promise.all` を用い、取得した各親案件の子課題を `backlogApi.getChildIssues(id)` で**並列で取得**。
+3. `progressCalc.calculate(parent, children)` を呼び出し、整形済み結果を返す。
 
-| ファイル名 | 役割 | 主要な関数 |
-|---|---|---|
-| `app.js` | Expressサーバの初期化、静的ファイルのホスティング、ミドルウェア設定 | - |
-| `config.js` | `process.env` をラップし、型の保証とデフォルト値を設定 | `getBacklogConfig()` |
-| `backlogApi.js` | Backlog API (v2) へのリクエストを管理。レート制限を考慮した並列呼び出し | `getIssues()`, `getChildIssues()` |
-| `progressCalc.js` | 基本設計書9章に基づいた工数・リスク算出ロジック | `calculateProgress()`, `evaluateRisk()` |
-| `holidayLoader.js` | 起動時または一定間隔で CSV から非営業日を読み込みキャッシュする | `loadHolidays()`, `isWorkingDay()` |
+### 3.2 Backlog データ抽出ロジック (`backlogApi.js`)
 
----
+**【親案件の抽出条件】**
+Backlog API (`/api/v2/issues`) に以下のクエリパラメータを付与して取得します。
+- プロジェクトIDが `V2A9` に該当するもの
+- 課題種別が `ISSUE_TYPE_ID_ANKEN` (00.案件) であること
+- Backlog標準ステータスが `1` (未対応) または `2` (処理中) であること
 
-## 4. APIエンドポイント仕様
+**【ステータスに関する追加フィルタリング】**
+APIで取得した全件に対してプログラム側で以下のフィルタリングを行います。
+- `parentIssueId` が `null` の課題に限定（子課題が誤って混入しないようにする）。
+- カスタム項目「ステータス」の文字列から先頭の数値を正規表現 (`/^(\d+)/`) で抽出。
+- 抽出した数値が **40以上〜60以下** の案件のみを有効データとして残す。
 
-### 4.1 GET `/api/progress`
-全案件の進捗集計データを取得する。
+### 3.3 工数・リスク計算ロジック (`progressCalc.js`)
 
-#### Request
-- **Query Parameters:** なし（将来的にプロジェクトID等を指定可能）
+**【残工数の計算プライオリティ】**
+課題ごとに以下のルールで未完了工数を算出し、親+すべての子供の値を合算します。
+1. **進捗率カスタム項目が最優先**
+   - オブジェクト形式 (`{name: '100', id: ...}`) で返ってきた場合は `name` を数値化する。
+   - `残工数 = 予定工数 × (1 - 進捗率 / 100)`
+2. **実績工数（進捗率が未設定の場合）**
+   - `残工数 = Max(0, 予定工数 - 実績工数)`
+3. **フォールバック**
+   - 上記どちらも無い場合は `予定工数` をそのまま残工数とする。
 
-#### Response (JSON)
-```json
-[
-  {
-    "issueKey": "V2A9-10",
-    "summary": "機能A強化",
-    "assignee": "山田 太郎",
-    "testReleaseDate": "2026-04-30",
-    "estimatedHours": 40.0,
-    "actualHours": 10.0,
-    "remainingHours": 30.0,
-    "progressRate": 25,
-    "riskLevel": "danger",
-    "riskIcon": "🔴",
-    "phases": {
-      "detailDesign": { "completed": 2, "total": 2 },
-      "unitTestDesign": { "completed": 0, "total": 1 },
-      "manufacturing": { "completed": 0, "total": 1 },
-      "unitTestExecution": { "completed": 0, "total": 1 }
-    },
-    "backlogUrl": "https://xxx.backlog.com/view/V2A9-10"
-  },
-  ...
-]
-```
+**【本番リリース待ちの検知（例外処理）】**
+- 親案件のカスタム項目「ステータス」の名称が `'59'` で始まる場合、フラグ `isWaitingForProduction = true` とする。
+- このフラグがオンの場合は、テストリリース日や残り日数は表示上隠蔽し、一律でリスク判定を「🟢 正常 (success)」とする。
+
+**【2軸でのリスク判定ロジック `evaluateRisk()`】**
+1. **納期余裕率 (M):** `利用可能工数(A) = 営業日残日数 × 8`。 `(A - 残工数) / A` で算出。
+2. **進捗遅延率 (L):** `経過比率 = 経過営業日 / 全営業日`、`実績進捗比率 = 1 - (残工数 / 予定工数)`。 `経過比率 - 実績進捗比率` で遅れ具合を算出。
+3. **結果判定:** 各軸で「0.15超過（危険）」「0.08〜0.15（注意）」などを判定し、一番悪い結果を案件の最終リスクとする。
+
+### 3.4 営業日算出ロジック (`holidayLoader.js`)
+- `data/holidays.csv` から日付（YYYY-MM-DD または YYYY/MM/DD）をメモリに Set オブジェクトでキャッシュする。
+- 曜日判断（0:日曜日, 6:土曜日）または CSV に存在する場合は「非営業日」としてカウントしない。
 
 ---
 
-## 5. ロジック詳細仕様
+## 4. フロントエンド設計
 
-### 5.1 Backlog API データ取得フロー
-1. `GET /api/v2/issues` で親課題（00.案件、ステータス40-60）を取得
-2. 取得した各親課題の `id` をリスト化し、`parentIssueId` として子課題を検索
-   - パフォーマンス向上のため、親課題10件ずつ程度で纏めてリクエストを送る等の工夫を行う
-3. 工程分類キーワードに基づき、子課題を工程別にグルーピングする
+### 4.1 状態管理とフィルタリング (`app.js`)
+- **グローバルステート:** `let allIssuesData = [];` によりAPIからの生データをメモリに保持。
+- **担当者の動的抽出:**
+  - `populateAssigneeFilter()` 関数で `allIssuesData` を走査し、`assignee` の一意なリストを抽出し、ソートした上で `<select id="assignee-filter">` を再構築する。
+- **フィルタリング処理 (`applyFilters`):**
+  - リストボックス変更時に発火。
+  - 「担当者名が一致するもの」および「選択したリスクレベルに一致するもの（『要確認』の場合は`check`と`warning`の複合条件）」をフィルタした配列を再生成し、`renderTable` に渡す。
 
-### 5.2 工程分類ロジック
-子課題の `summary` または `issueType` に以下のキーワードが含まれる場合に分類する。
-
-| 工程 | キーワード（正規表現） |
-|---|---|
-| 詳細設計 | `詳細設計` / `Detail Design` / `DD` |
-| 単体テスト設計 | `単体テスト設計` / `UTD` / `UT設計` |
-| 製造 | `製造` / `Coding` / `実装` |
-| 単体テスト実施 | `単体テスト実施` / `UT実施` |
-
-### 5.3 リスク判定の厳密化 (Edge Cases)
-基本設計書9.5節に加え、以下の詳細な仕様を適用する。
-
-- **開始日の決定:**
-  1. 課題の `startDate`
-  2. なければ `created` (作成日)
-  3. `startDate` が `testReleaseDate` より後の場合は、`created` を使用
-- **残工数 0 の扱い:**
-  - 全ての課題が「完了」ステータスであれば、リスクは常に `🟢 正常` とする
-- **予定工数未設定:**
-  - 親・子ともに予定工数 0 の場合は、画面上 `予定工数: —` と表示し、リスクは `⚠️ 要確認` とする
-
----
-
-## 6. フロントエンド設計
-
-### 6.1 画面コンポーネント構成
-- **App (js/app.js):** 全体の状態管理とAPI呼び出しのトリガー
-- **SearchFilter (js/components.js):** 担当者・リスク・マイルストーンの絞り込み
-- **IssueTable (js/components.js):** 案件一覧のレンダリング
-- **ProgressBar (js/components.js):** 進捗率を視覚化するバー
-
-### 6.2 状態管理 (State)
-```javascript
-const state = {
-  allIssues: [],     // APIから取得した生データ
-  filteredIssues: [], // フィルタ適用後のデータ
-  filters: {
-    assignee: 'all',
-    risk: 'all',
-    milestone: 'all'
-  },
-  isLoading: false,
-  error: null
-};
-```
-
-### 6.3 デザインシステム (CSS)
-- **カラーパレット:**
-  - Primary: `#00a29a` (Backlog Green)
-  - Danger: `#e74c3c`
-  - Warning: `#f1c40f`
-  - Success: `#2ecc71`
-  - Background: `#f8f9fa`
-- **フォント:** `Inter, "Noto Sans JP", sans-serif`
-- **テーブル:** 固定ヘッダー、ホバー時行ハイライト
-
----
-
-## 7. インフラ・デプロイ設計
-
-### 7.1 Docker構成
-
-#### Dockerfile
-- `Node.js 18-slim` をベースイメージに使用
-- `/app` に backend と frontend を配置
-- バックエンドが `frontend/` を `express.static()` で配信する
-
-#### docker-compose.yml
-- 社内ネットワーク内の特定ポート（例：3030）をフォワード
-- ボリュームマウントを使用して非営業日CSVを動的に参照可能にする
-
-### 7.2 環境変数 (.env) 詳細
-
-| 変数名 | デフォルト値 | 必須 | 説明 |
-|---|---|---|---|
-| `BACKLOG_API_KEY` | - | Yes | Backlog APIアクセス用 |
-| `BACKLOG_SPACE_ID` | - | Yes | `xxxx.backlog.com` の `xxxx` 部分 |
-| `PROJECT_KEY` | `V2A9` | No | 対象プロジェクト |
-| `HOLIDAY_CSV_PATH` | `./data/holidays.csv` | No | 非営業日マスタ |
-| `PORT` | `3030` | No | 起動ポート |
-
----
-
-## 8. 非機能要件の具体的実現
-
-| 項目 | 実装方針 |
-|---|---|
-| レート制限対策 | `p-limit` 等のライブラリを使用し、同時に発行するAPIリクエストを5件程度に制限 |
-| エラーハンドリング | APIエラー時はフロントエンドに分かりやすいメッセージ（「APIキーが無効です」等）を返却し、画面全体がクラッシュしないようにする |
-| 軽量化 | 外部ライブラリを最小限にし、クライアント側での JS 実行負荷を下げる |
+### 4.2 画面レンダリング仕様
+- **リリース予定日表示 (`.date-cell` / `.days-badge`)**
+  - `isWaitingForProduction === true` の場合: 「本番リリース待ち」バッジを表示。
+  - 上記以外の場合: 日付のハイフンをスラッシュに置換（`YYYY/MM/DD`）して表示し、その下に「残 〇 営業日」のバッジを表示する。日数が0以下の場合は赤色 (`.danger`) となる。
+- **工数グリッド (`.hours-grid`)**
+  - 「予」「実」「残」を縦並びのFlexboxグリッドで表示。
+  - 数値桁数に関わらず一の位が右揃えになるよう `font-family: monospace` ならびに横幅を固定してレイアウト崩れを制御。
+- **工程状況コンポーネント (`components.js - renderPhaseStatus`)**
+  - 「詳細設計」「単テ設計」「製造」「単テ実施」の進捗を2×2のグリッドで出力。
+  - 対象の課題が存在しない工程は半透明化 (`opacity: 0.5`) して表示。全課題が「完了」ステータスになった工程は緑色のデザイン (`.complete`) に変化する。
