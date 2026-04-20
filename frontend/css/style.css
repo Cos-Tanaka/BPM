@@ -226,79 +226,72 @@ tr:hover {
     color: var(--text-muted);
     font-weight: 600;
     padding-left: 4px;
-    cursor: help;
-    border-bottom: 1px dotted rgba(0,0,0,0.1);
-    width: fit-content;
 }
 
-.tooltip {
-    position: absolute;
-    bottom: 115%; /* Increased gap */
-    left: 0;
-    background: rgba(33, 47, 61, 0.98); /* Slightly darker for better contrast */
-    color: white;
-    padding: 14px; /* Increased padding */
-    border-radius: 8px;
-    font-size: 0.8rem; /* Slightly larger font */
-    width: 300px; /* Wider for better text flow */
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    visibility: hidden;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000; /* High z-index */
-    pointer-events: none;
-    line-height: 1.6;
-    backdrop-filter: blur(8px);
+/* Risk Guide */
+.risk-guide h3 {
+    font-size: 1rem;
+    margin-bottom: 1.2rem;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.tooltip::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 20px;
-    border-width: 6px;
-    border-style: solid;
-    border-color: rgba(44, 62, 80, 0.98) transparent transparent transparent;
+.risk-guide h3::before {
+    content: "💡";
 }
 
-.risk-cell:hover .tooltip {
-    visibility: visible;
-    opacity: 1;
-    transform: translateY(0);
+.guide-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
 }
 
-.tooltip-title {
-    display: block;
-    font-weight: 700;
-    margin-bottom: 8px;
-    color: var(--primary);
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    padding-bottom: 4px;
+.guide-item h4 {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-dark);
+}
+
+.guide-item .formula {
+    background: #f8fafc;
+    padding: 0.5rem;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid var(--border);
+}
+
+.guide-item .desc {
     font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.8rem;
 }
 
-.tooltip-item {
-    margin-bottom: 8px;
+.thresholds {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
 }
 
-.tooltip-item:last-child {
-    margin-bottom: 0;
+.thresholds li {
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
 }
 
-.tooltip-label {
-    font-weight: 700;
-    display: block;
-    color: #fff;
-    margin-bottom: 2px;
+.thresholds .badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
 }
 
-.tooltip-desc {
-    display: block;
-    color: #d1d5db;
-    font-weight: 400;
-    text-align: justify;
-}
+.thresholds .danger { background: #fee2e2; color: #dc2626; }
+.thresholds .warning { background: #ffedd5; color: #d97706; }
 
 /* Overview Stats */
 .overview-stats {
