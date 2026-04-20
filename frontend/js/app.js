@@ -118,6 +118,19 @@ function renderTable(issues) {
                             <div class="risk-details">
                                 ${issue.marginRate !== null ? `<span>余裕: ${issue.marginRate}%</span>` : ''}
                                 ${issue.delayRate !== null ? `<span>遅延: ${issue.delayRate}%</span>` : ''}
+                                <div class="tooltip">
+                                    <span class="tooltip-title">リスク指標の詳細と判定基準</span>
+                                    <div class="tooltip-item">
+                                        <span class="tooltip-label">■ 納期余裕率</span>
+                                        <span class="tooltip-desc">予定日までの残り時間に対する残工数の余裕度です。
+                                            <br>🔴危険: 10%未満 / 🟡注意: 20%未満</span>
+                                    </div>
+                                    <div class="tooltip-item">
+                                        <span class="tooltip-label">■ 進捗遅延率</span>
+                                        <span class="tooltip-desc">理想の進捗（経過日数比）に対する実際の進捗の遅れです。
+                                            <br>🔴危険: 15%超 / 🟡注意: 8%超</span>
+                                    </div>
+                                </div>
                             </div>
                         ` : '' }
                     </div>

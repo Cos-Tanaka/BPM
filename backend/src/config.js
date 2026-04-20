@@ -7,7 +7,7 @@ module.exports = {
     spaceId: process.env.BACKLOG_SPACE_ID,
     projectKey: process.env.PROJECT_KEY || 'V2A9',
   },
-  holidayCsvPath: process.env.HOLIDAY_CSV_PATH || './data/holidays.csv',
+  holidayCsvPath: process.env.HOLIDAY_CSV_PATH || require('path').join(__dirname, '../../data/holidays.csv'),
   // IDs will be added here or used directly from env
   customFields: {
     status: process.env.CUSTOM_FIELD_ID_STATUS,
