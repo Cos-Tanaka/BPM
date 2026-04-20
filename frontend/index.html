@@ -71,6 +71,30 @@
                     </tbody>
                 </table>
             </section>
+
+            <section class="risk-guide card">
+                <h3>リスク判定基準と計算式</h3>
+                <div class="guide-grid">
+                    <div class="guide-item">
+                        <h4>■ 納期余裕率 (M)</h4>
+                        <div class="formula">計算式: (利用可能工数 - 残工数) / 利用可能工数</div>
+                        <p class="desc">予定日までの稼働時間に対する工数の余白を示します。</p>
+                        <ul class="thresholds">
+                            <li><span class="badge danger">🔴 危険</span> 10% 未満</li>
+                            <li><span class="badge warning">🟡 注意</span> 20% 未満</li>
+                        </ul>
+                    </div>
+                    <div class="guide-item">
+                        <h4>■ 進捗遅延率 (L)</h4>
+                        <div class="formula">計算式: 経過日数比 - 実績進捗比率</div>
+                        <p class="desc">理想の進捗スピードに対する現在の遅れ度合いを示します。</p>
+                        <ul class="thresholds">
+                            <li><span class="badge danger">🔴 危険</span> 15% 超</li>
+                            <li><span class="badge warning">🟡 注意</span> 8% 超</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
         </main>
 
         <footer class="main-footer">
