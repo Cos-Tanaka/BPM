@@ -37,7 +37,7 @@ class BacklogApi {
         apiKey: this.apiKey,
         'projectId[]': [this.projectId],
         'issueTypeId[]': [config.issueTypeAnken],
-        'statusId[]': [1, 2], // 未対応, 処理中
+        'statusId[]': [1, 2, 3], // 未対応, 処理中, 処理済み
         // 'parentChild': 1, // 親課題のみ (一旦コメントアウトして確認)
         count: 100
       };
