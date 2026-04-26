@@ -49,20 +49,52 @@ HOLIDAY_CSV_PATH=./data/holidays.csv
 
 ## アプリケーションの起動方法
 
-### ローカルでの直接起動 (Node.js)
-```bash
-cd backend
-npm install
-node src/app.js
-```
-`http://localhost:3030` にアクセスしてください。
+自端末（ローカル環境）で起動して動作を確認するための手順です。
 
-### Docker での起動
-社内Linuxサーバなどの本番環境、もしくはDockerを使用した統一環境で動かす場合:
-```bash
-docker-compose up -d --build
-```
-`http://localhost:3030` にアクセスしてください。
+### 1. ローカルでの直接起動 (Node.js)
+
+Node.jsがインストールされている環境であれば、以下のコマンドで起動できます。
+
+1.  **リポジトリのルートディレクトリに移動**
+    ```powershell
+    cd C:\Cos-Tanaka\BPM
+    ```
+
+2.  **バックエンドの依存関係をインストール**（初回のみ）
+    ```powershell
+    cd backend
+    npm install
+    ```
+
+3.  **サーバーの起動**
+    ```powershell
+    npm start
+    ```
+    ※ `node src/app.js` でも起動可能です。
+
+4.  **ブラウザで確認**
+    ブラウザを開き、以下のURLにアクセスしてください。
+    [http://localhost:3030](http://localhost:3030)
+
+### 2. Docker での起動
+
+Dockerがインストールされている場合は、コンテナとして起動することも可能です。
+
+1.  **コンテナのビルドと起動**
+    ```powershell
+    docker-compose up -d --build
+    ```
+
+2.  **ブラウザで確認**
+    [http://localhost:3030](http://localhost:3030) にアクセスしてください。
+
+---
+
+## 起動しない場合の確認事項
+
+- **.env ファイル:** プロジェクトルートに `.env` ファイルが存在し、`BACKLOG_API_KEY` 等が正しく設定されているか確認してください。
+- **ポート番号:** `3030` ポートが他のプロセスで使用されていないか確認してください。
+- **Node.js バージョン:** `node -v` で v18 以上であることを確認してください。
 
 ## ドキュメント
 - [BPM 基本設計書](./doc/BPM_基本設計書.md)
